@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ContaCorrente struct {
 	titular    string
@@ -9,23 +11,37 @@ type ContaCorrente struct {
 	saldo      float64
 }
 
-func (c *ContaCorrente) realizaIntroducao(contaTheo ContaCorrente) {
+func (c *ContaCorrente) realizaIntroducao(novaConta ContaCorrente) ContaCorrente {
+
+	contaAuxiliar := ContaCorrente{}
+	contaAuxiliar.titular = "Theo"
+	contaAuxiliar.numAgencia = 123
+	contaAuxiliar.numConta = 123234
+	contaAuxiliar.saldo = 2000.
+
 	escolha := 0
 	fmt.Println("1 - Sacar")
 	fmt.Println("2 - Depositar")
-	fmt.Println("3 - Sair")
+	fmt.Println("3 - Transferência")
+	fmt.Println("4 - Sair")
 	fmt.Print("Informe a operação que deseja realizar: ")
 	fmt.Scanf("%d", &escolha)
 	fmt.Println("-------------------------")
 
 	switch escolha {
 	case 1:
-		contaTheo.realizaSaque()
+		novaConta.realizaSaque()
 	case 2:
-		contaTheo.realizaDeposito()
+		novaConta.realizaDeposito()
 	case 3:
+		novaConta.realizaTransferencia(&contaAuxiliar)
+	case 4:
 		fmt.Println("Sem problemas, até a próxima :)")
+	default:
+		fmt.Println("O valor indicado não eh possível :(")
 	}
+
+	return contaAuxiliar
 }
 
 func (conta *ContaCorrente) realizaSaque() {
@@ -35,13 +51,17 @@ func (conta *ContaCorrente) realizaSaque() {
 	fmt.Print("Informe o valor que deseja sacar: ")
 	fmt.Scanf("%f", &valorSaque)
 
-	if valorSaque <= conta.saldo {
-		conta.saldo -= valorSaque
+	if valorSaque > 0 {
+		if valorSaque <= conta.saldo {
+			conta.saldo -= valorSaque
 
-		fmt.Print("O valor do saldo atual eh: ", conta.saldo)
-		fmt.Println("")
+			fmt.Print("O valor do saldo atual eh: ", conta.saldo)
+			fmt.Println("")
+		} else {
+			fmt.Println("O valor desejado de saque é maior do que o existente na conta")
+		}
 	} else {
-		fmt.Println("O valor desejado de saque é maior do que o existente na conta")
+		fmt.Println("O valor informado não eh possível :(")
 	}
 
 }
@@ -62,6 +82,25 @@ func (conta *ContaCorrente) realizaDeposito() {
 		fmt.Println("")
 	} else {
 		fmt.Println("O valor inserido é indisponível, peço desculpas :(")
+	}
+}
+
+func (conta *ContaCorrente) realizaTransferencia(contaDestino *ContaCorrente) bool {
+	valorTransferencia := 12.
+
+	fmt.Print("Seu saldo atual é: ", conta.saldo)
+	fmt.Println("")
+
+	fmt.Println("Qual o valor que deseja transferir?")
+	fmt.Scanf("%f", &valorTransferencia)
+
+	if valorTransferencia < conta.saldo {
+		conta.saldo -= valorTransferencia
+		contaDestino.saldo += valorTransferencia
+		fmt.Println("Transferência realizada com sucesso, valor da conta auxiliar é:", contaDestino.saldo)
+		return true
+	} else {
+		return false
 	}
 }
 
@@ -88,12 +127,11 @@ func indentificaUsuario() (string, int, int, float64) {
 func main() {
 	nome, numAgencia, numConta, saldo := indentificaUsuario()
 
-	contaTheo := ContaCorrente{}
-	contaTheo.titular = nome
-	contaTheo.numAgencia = numAgencia
-	contaTheo.numConta = numConta
-	contaTheo.saldo = saldo
+	novaConta := ContaCorrente{}
+	novaConta.titular = nome
+	novaConta.numAgencia = numAgencia
+	novaConta.numConta = numConta
+	novaConta.saldo = saldo
 
-	contaTheo.realizaIntroducao(contaTheo)
-
+	novaConta.realizaIntroducao(novaConta)
 }
